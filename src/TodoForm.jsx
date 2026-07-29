@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 function TodoForm({ onAddTodo }) {
   const [todoTitle, setTodoTitle] = useState('');
+  const inputRef = useRef();
 
   function handleTitleChange(event) {
     const newTodoTitle = event.target.value;
@@ -11,18 +12,22 @@ function TodoForm({ onAddTodo }) {
   function handleAddTodo(event) {
     event.preventDefault();
     
+    if (todoTitle.trim() === '') return;
+
     onAddTodo({
       title: todoTitle,
       id: Date.now(),
     });
 
     setTodoTitle('');
+    inputRef.current.focus();
   }
 
   return (
     <form onSubmit={handleAddTodo}>
       <label htmlFor="todoTitle">Title: </label>
       <input
+        ref={inputRef}
         id="todoTitle"
         name="title"
         value={todoTitle}
@@ -33,4 +38,4 @@ function TodoForm({ onAddTodo }) {
   );
 }
 
-export default TodoForm;
+default export TodoForm;
