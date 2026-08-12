@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import TodoForm from './features/TodoForm';
-import TodoList from './features/TodoList/TodoList';
+import TodoList from './TodoList';
 
 function App() {
   const [todoList, setTodoList] = useState([
@@ -30,7 +30,7 @@ function App() {
   const updateTodo = (editedTodo) => {
     const updatedTodos = todoList.map((todo) => {
       if (todo.id === editedTodo.id) {
-        return editedTodo;
+        return { ...todo, ...editedTodo };
       }
       return todo;
     });
