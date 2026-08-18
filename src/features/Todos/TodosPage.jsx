@@ -24,7 +24,7 @@ export default function TodosPage({ token }) {
           throw new Error('Unauthorized request');
         }
         if (!response.ok) {
-          throw new Error('Failed to fetch todos from server');
+          throw new Error('Failed to fetch todos');
         }
 
         const data = await response.json();
@@ -42,12 +42,9 @@ export default function TodosPage({ token }) {
   const addTodo = async (title) => {
     const tempId = Date.now().toString();
     const optimisticTodo = { id: tempId, title, isCompleted: false };
-
-    let previousTodos = [];
-    setTodoList((prev) => {
-      previousTodos = prev;
-      return [optimisticTodo, ...prev];
-    });
+    
+    const previousTodos = [...todoList];
+    setTodoList((prev) => [optimisticTodo, ...prev]);
     setError('');
 
     try {
@@ -61,7 +58,7 @@ export default function TodosPage({ token }) {
         body: JSON.stringify({ title, isCompleted: false }),
       });
 
-      if (!response.ok) throw new Error('Server rejected new todo');
+      if (!response.ok) throw new Error('Failed to add todo');
 
       const savedTodo = await response.json();
       setTodoList((prev) => prev.map((t) => (t.id === tempId ? savedTodo : t)));
@@ -72,15 +69,15 @@ export default function TodosPage({ token }) {
   };
 
   const completeTodo = async (id) => {
-    let previousTodos = [];
-    setTodoList((prev) => {
-      previousTodos = prev;
-      return prev.map((t) => (t.id === id ? { ...t, isCompleted: !t.isCompleted } : t));
-    });
+    const originalTodo = todoList.find((t) => t.id === id);
+    if (!originalTodo) return;
 
-    const targetTodo = previousTodos.find((t) => t.id === id);
-    if (!targetTodo) return;
-    const newCompletedStatus = !targetTodo.isCompleted;
+    const previousTodos = [...todoList];
+    const updatedStatus = !originalTodo.isCompleted;
+
+    setTodoList((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, isCompleted: updatedStatus } : t))
+    );
 
     try {
       const response = await fetch(`/api/tasks/${id}`, {
@@ -90,10 +87,10 @@ export default function TodosPage({ token }) {
           'X-CSRF-TOKEN': token,
         },
         credentials: 'include',
-        body: JSON.stringify({ isCompleted: newCompletedStatus }),
+        body: JSON.stringify({ isCompleted: updatedStatus }),
       });
 
-      if (!response.ok) throw new Error('Server rejected completion update');
+      if (!response.ok) throw new Error('Failed to complete todo');
     } catch (err) {
       setTodoList(previousTodos);
       setError(`Failed to complete todo: ${err.message}`);
@@ -101,11 +98,11 @@ export default function TodosPage({ token }) {
   };
 
   const updateTodo = async (editedTodo) => {
-    let previousTodos = [];
-    setTodoList((prev) => {
-      previousTodos = prev;
-      return prev.map((t) => (t.id === editedTodo.id ? editedTodo : t));
-    });
+    const previousTodos = [...todoList];
+
+    setTodoList((prev) =>
+      prev.map((t) => (t.id === editedTodo.id ? editedTodo : t))
+    );
 
     try {
       const response = await fetch(`/api/tasks/${editedTodo.id}`, {
@@ -118,10 +115,10 @@ export default function TodosPage({ token }) {
         body: JSON.stringify({ title: editedTodo.title, isCompleted: editedTodo.isCompleted }),
       });
 
-      if (!response.ok) throw new Error('Server rejected title update');
+      if (!response.ok) throw new Error('Failed to update todo');
     } catch (err) {
       setTodoList(previousTodos);
-      setError(`Failed to update todo title: ${err.message}`);
+      setError(`Failed to update todo: ${err.message}`);
     }
   };
 
@@ -131,7 +128,7 @@ export default function TodosPage({ token }) {
       {error && (
         <div className="error-banner">
           <p style={{ color: 'red' }}>{error}</p>
-          <button onClick={() =>setError('')}>Clear Error</button>
+          <button onClick={() => setError('')}>Clear Error</button>
         </div>
       )}
       {isTodoListLoading && <p>Loading todos...</p>}

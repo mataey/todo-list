@@ -9,11 +9,12 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <Header />
-      {!token ? (
-        <Logon onSetEmail={setEmail} onSetToken={setToken} />
-      ) : (
+      <Header token={token} onSetToken={setToken} onSetEmail={setEmail} userEmail={email} />
+      
+      {token ? (
         <TodosPage token={token} />
+      ) : (
+        <Logon onSetEmail={setEmail} onSetToken={setToken} />
       )}
     </div>
   );
