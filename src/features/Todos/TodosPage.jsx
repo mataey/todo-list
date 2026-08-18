@@ -21,7 +21,7 @@ export default function TodosPage({ token }) {
         });
 
         if (response.status === 401) {
-          throw new Error('Unauthorized request');
+          throw new Error('unauthorized');
         }
         if (!response.ok) {
           throw new Error('Failed to fetch todos');
@@ -30,7 +30,11 @@ export default function TodosPage({ token }) {
         const data = await response.json();
         setTodoList(data.tasks || []);
       } catch (err) {
-        setError(`Error fetching todos: ${err.message}`);
+        if (err.message === 'unauthorized') {
+          setError('Unauthorized request');
+        } else {
+          setError(`Error fetching todos: ${err.message}`);
+        }
       } finally {
         setIsTodoListLoading(false);
       }
