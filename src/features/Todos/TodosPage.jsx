@@ -10,32 +10,24 @@ export default function TodosPage({ token }) {
   useEffect(() => {
     const fetchTodos = async () => {
       if (!token) return;
-
       setIsTodoListLoading(true);
       setError('');
 
       try {
-        const params = new URLSearchParams({
-          limit: '100',
-        });
-
+        const params = new URLSearchParams({ limit: 100 });
         const response = await fetch(`/api/tasks?${params}`, {
-          headers: {
-            'X-CSRF-TOKEN': token,
-          },
+          headers: { 'X-CSRF-TOKEN': token },
           credentials: 'include',
         });
 
         if (response.status === 401) {
           throw new Error('unauthorized');
         }
-
         if (!response.ok) {
           throw new Error('Failed to fetch todos');
         }
 
         const data = await response.json();
-
         setTodoList(data.tasks || []);
       } catch (err) {
         if (err.message === 'unauthorized') {
@@ -53,17 +45,11 @@ export default function TodosPage({ token }) {
 
   const addTodo = async (title) => {
     const tempId = Date.now().toString();
-
-    const optimisticTodo = {
-      id: tempId,
-      title,
-      isCompleted: false,
-    };
-
+    const optimisticTodo = { id: tempId, title, isCompleted: false };
+    
     const previousTodos = [...todoList];
-
+    setError(''); // پاک کردن خطای قبلی
     setTodoList((prev) => [optimisticTodo, ...prev]);
-    setError('');
 
     try {
       const response = await fetch('/api/tasks', {
@@ -73,61 +59,35 @@ export default function TodosPage({ token }) {
           'X-CSRF-TOKEN': token,
         },
         credentials: 'include',
-        body: JSON.stringify({
-          title,
-          isCompleted: false,
-        }),
+        body: JSON.stringify({ title, isCompleted: false }),
       });
 
-      if (response.status === 401) {
-        throw new Error('unauthorized');
-      }
-
-      if (!response.ok) {
-        throw new Error('Failed to add todo');
-      }
+      if (response.status === 401) throw new Error('unauthorized');
+      if (!response.ok) throw new Error('Failed to add todo');
 
       const savedTodo = await response.json();
-
-      setTodoList((prev) =>
-        prev.map((todo) =>
-          todo.id === tempId ? savedTodo : todo
-        )
-      );
+      setTodoList((prev) => prev.map((t) => (t.id === tempId ? savedTodo : t)));
     } catch (err) {
       setTodoList(previousTodos);
-
       if (err.message === 'unauthorized') {
         setError('Unauthorized request');
       } else {
-        setError(`Failed to add todo: ${err.message}`);
+        setError(`Failed to perform operation: ${err.message}`);
       }
     }
   };
 
   const completeTodo = async (id) => {
-    const originalTodo = todoList.find(
-      (todo) => todo.id === id
-    );
-
+    const originalTodo = todoList.find((t) => t.id === id);
     if (!originalTodo) return;
 
     const previousTodos = [...todoList];
-
     const updatedStatus = !originalTodo.isCompleted;
 
+    setError(''); // پاک کردن خطای قبلی
     setTodoList((prev) =>
-      prev.map((todo) =>
-        todo.id === id
-          ? {
-              ...todo,
-              isCompleted: updatedStatus,
-            }
-          : todo
-      )
+      prev.map((t) => (t.id === id ? { ...t, isCompleted: updatedStatus } : t))
     );
-
-    setError('');
 
     try {
       const response = await fetch(`/api/tasks/${id}`, {
@@ -137,25 +97,17 @@ export default function TodosPage({ token }) {
           'X-CSRF-TOKEN': token,
         },
         credentials: 'include',
-        body: JSON.stringify({
-          isCompleted: updatedStatus,
-        }),
+        body: JSON.stringify({ isCompleted: updatedStatus }),
       });
 
-      if (response.status === 401) {
-        throw new Error('unauthorized');
-      }
-
-      if (!response.ok) {
-        throw new Error('Failed to complete todo');
-      }
+      if (response.status === 401) throw new Error('unauthorized');
+      if (!response.ok) throw new Error('Failed to complete todo');
     } catch (err) {
       setTodoList(previousTodos);
-
       if (err.message === 'unauthorized') {
         setError('Unauthorized request');
       } else {
-        setError(`Failed to complete todo: ${err.message}`);
+        setError(`Failed to perform operation: ${err.message}`);
       }
     }
   };
@@ -163,45 +115,30 @@ export default function TodosPage({ token }) {
   const updateTodo = async (editedTodo) => {
     const previousTodos = [...todoList];
 
+    setError(''); // پاک کردن خطای قبلی
     setTodoList((prev) =>
-      prev.map((todo) =>
-        todo.id === editedTodo.id ? editedTodo : todo
-      )
+      prev.map((t) => (t.id === editedTodo.id ? editedTodo : t))
     );
 
-    setError('');
-
     try {
-      const response = await fetch(
-        `/api/tasks/${editedTodo.id}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': token,
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            title: editedTodo.title,
-            isCompleted: editedTodo.isCompleted,
-          }),
-        }
-      );
+      const response = await fetch(`/api/tasks/${editedTodo.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': token,
+        },
+        credentials: 'include',
+        body: JSON.stringify({ title: editedTodo.title, isCompleted: editedTodo.isCompleted }),
+      });
 
-      if (response.status === 401) {
-        throw new Error('unauthorized');
-      }
-
-      if (!response.ok) {
-        throw new Error('Failed to update todo');
-      }
+      if (response.status === 401) throw new Error('unauthorized');
+      if (!response.ok) throw new Error('Failed to update todo');
     } catch (err) {
       setTodoList(previousTodos);
-
       if (err.message === 'unauthorized') {
         setError('Unauthorized request');
       } else {
-        setError(`Failed to update todo: ${err.message}`);
+        setError(`Failed to perform operation: ${err.message}`);
       }
     }
   };
@@ -209,26 +146,16 @@ export default function TodosPage({ token }) {
   return (
     <div className="todos-container">
       <h2>My Tasks</h2>
-
       {error && (
         <div className="error-banner">
           <p style={{ color: 'red' }}>{error}</p>
-
-          <button onClick={() => setError('')}>
-            Clear Error
-          </button>
+          <button onClick={() => setError('')}>Clear Error</button>
         </div>
       )}
-
       {isTodoListLoading && <p>Loading todos...</p>}
 
       <TodoForm onAddTodo={addTodo} />
-
-      <TodoList
-        todoList={todoList}
-        onCompleteTodo={completeTodo}
-        onUpdateTodo={updateTodo}
-      />
+      <TodoList todoList={todoList} onCompleteTodo={completeTodo} onUpdateTodo={updateTodo} />
     </div>
   );
 }
