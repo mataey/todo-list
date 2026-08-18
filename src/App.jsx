@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import Header from './shared/Header';
-import Logon from './Logon';
+import Logon from './features/Logon';
+import TodosPage from './features/Todos/TodosPage';
 
 export default function App() {
-  const [userToken, setUserToken] = useState(null);
+  const [email, setEmail] = useState('');
+  const [token, setToken] = useState('');
 
   return (
     <div className="app-container">
       <Header />
-      {!userToken ? (
-        <Logon onLoginSuccess={(token) => setUserToken(token)} />
+      {!token ? (
+        <Logon onSetEmail={setEmail} onSetToken={setToken} />
       ) : (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <h2>Welcome! You have successfully logged in.</h2>
-        </div>
+        <TodosPage token={token} />
       )}
     </div>
   );
