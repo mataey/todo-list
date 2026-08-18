@@ -21,16 +21,16 @@ export default function TodosPage({ token }) {
         });
 
         if (response.status === 401) {
-          throw new Error('Unauthorized');
+          throw new Error('Unauthorized request');
         }
         if (!response.ok) {
-          throw new Error('Failed to fetch todos');
+          throw new Error('Failed to fetch todos from server');
         }
 
         const data = await response.json();
         setTodoList(data.tasks || []);
       } catch (err) {
-        setError(err.message);
+        setError(`Error fetching todos: ${err.message}`);
       } finally {
         setIsTodoListLoading(false);
       }
@@ -43,8 +43,12 @@ export default function TodosPage({ token }) {
     const tempId = Date.now().toString();
     const optimisticTodo = { id: tempId, title, isCompleted: false };
 
-    setTodoList((prev) => [optimisticTodo, ...prev]);
-    const previousTodos = [...todoList];
+    let previousTodos = [];
+    setTodoList((prev) => {
+      previousTodos = prev;
+      return [optimisticTodo, ...prev];
+    });
+    setError('');
 
     try {
       const response = await fetch('/api/tasks', {
@@ -57,24 +61,26 @@ export default function TodosPage({ token }) {
         body: JSON.stringify({ title, isCompleted: false }),
       });
 
-      if (!response.ok) throw new Error();
+      if (!response.ok) throw new Error('Server rejected new todo');
 
       const savedTodo = await response.json();
       setTodoList((prev) => prev.map((t) => (t.id === tempId ? savedTodo : t)));
-    } catch {
+    } catch (err) {
       setTodoList(previousTodos);
-      setError('Failed to add todo.');
+      setError(`Failed to add todo: ${err.message}`);
     }
   };
 
   const completeTodo = async (id) => {
-    const previousTodos = [...todoList];
-    const targetTodo = todoList.find((t) => t.id === id);
+    let previousTodos = [];
+    setTodoList((prev) => {
+      previousTodos = prev;
+      return prev.map((t) => (t.id === id ? { ...t, isCompleted: !t.isCompleted } : t));
+    });
+
+    const targetTodo = previousTodos.find((t) => t.id === id);
     if (!targetTodo) return;
-
-    const updatedState = { ...targetTodo, isCompleted: !targetTodo.isCompleted };
-
-    setTodoList((prev) => prev.map((t) => (t.id === id ? updatedState : t)));
+    const newCompletedStatus = !targetTodo.isCompleted;
 
     try {
       const response = await fetch(`/api/tasks/${id}`, {
@@ -84,20 +90,22 @@ export default function TodosPage({ token }) {
           'X-CSRF-TOKEN': token,
         },
         credentials: 'include',
-        body: JSON.stringify({ isCompleted: updatedState.isCompleted }),
+        body: JSON.stringify({ isCompleted: newCompletedStatus }),
       });
 
-      if (!response.ok) throw new Error();
-    } catch {
+      if (!response.ok) throw new Error('Server rejected completion update');
+    } catch (err) {
       setTodoList(previousTodos);
-      setError('Failed to update todo.');
+      setError(`Failed to complete todo: ${err.message}`);
     }
   };
 
   const updateTodo = async (editedTodo) => {
-    const previousTodos = [...todoList];
-
-    setTodoList((prev) => prev.map((t) => (t.id === editedTodo.id ? editedTodo : t)));
+    let previousTodos = [];
+    setTodoList((prev) => {
+      previousTodos = prev;
+      return prev.map((t) => (t.id === editedTodo.id ? editedTodo : t));
+    });
 
     try {
       const response = await fetch(`/api/tasks/${editedTodo.id}`, {
@@ -110,10 +118,10 @@ export default function TodosPage({ token }) {
         body: JSON.stringify({ title: editedTodo.title, isCompleted: editedTodo.isCompleted }),
       });
 
-      if (!response.ok) throw new Error();
-    } catch {
+      if (!response.ok) throw new Error('Server rejected title update');
+    } catch (err) {
       setTodoList(previousTodos);
-      setError('Failed to update todo title.');
+      setError(`Failed to update todo title: ${err.message}`);
     }
   };
 
@@ -123,7 +131,7 @@ export default function TodosPage({ token }) {
       {error && (
         <div className="error-banner">
           <p style={{ color: 'red' }}>{error}</p>
-          <button onClick={() => setError('')}>Clear Error</button>
+          <button onClick={() =>setError('')}>Clear Error</button>
         </div>
       )}
       {isTodoListLoading && <p>Loading todos...</p>}
