@@ -9,12 +9,19 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <Header />
-      
+      <Header
+        token={token}
+        onSetToken={setToken}
+        onSetEmail={setEmail}
+      />
+
       {token ? (
         <TodosPage token={token} />
       ) : (
-        <Logon onSetEmail={setEmail} onSetToken={setToken} />
+        <Logon
+          onSetEmail={setEmail}
+          onSetToken={setToken}
+        />
       )}
     </div>
   );
