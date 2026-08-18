@@ -4,16 +4,17 @@ import Logon from './features/Logon';
 import TodosPage from './features/Todos/TodosPage';
 
 export default function App() {
+  const [email, setEmail] = useState('');
   const [token, setToken] = useState('');
 
   return (
     <div className="app-container">
-      <Header />
+      <Header token={token} onSetToken={setToken} onSetEmail={setEmail} />
       
       {token ? (
         <TodosPage token={token} />
       ) : (
-        <Logon onSetToken={setToken} />
+        <Logon onSetEmail={setEmail} onSetToken={setToken} />
       )}
     </div>
   );

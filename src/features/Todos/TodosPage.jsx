@@ -48,7 +48,8 @@ export default function TodosPage({ token }) {
     const optimisticTodo = { id: tempId, title, isCompleted: false };
     
     const previousTodos = [...todoList];
-    setError(''); // پاک کردن خطای قبلی
+    setError('');
+    setIsTodoListLoading(true);
     setTodoList((prev) => [optimisticTodo, ...prev]);
 
     try {
@@ -74,6 +75,8 @@ export default function TodosPage({ token }) {
       } else {
         setError(`Failed to perform operation: ${err.message}`);
       }
+    } finally {
+      setIsTodoListLoading(false);
     }
   };
 
@@ -84,7 +87,7 @@ export default function TodosPage({ token }) {
     const previousTodos = [...todoList];
     const updatedStatus = !originalTodo.isCompleted;
 
-    setError(''); // پاک کردن خطای قبلی
+    setError('');
     setTodoList((prev) =>
       prev.map((t) => (t.id === id ? { ...t, isCompleted: updatedStatus } : t))
     );
@@ -115,7 +118,7 @@ export default function TodosPage({ token }) {
   const updateTodo = async (editedTodo) => {
     const previousTodos = [...todoList];
 
-    setError(''); // پاک کردن خطای قبلی
+    setError('');
     setTodoList((prev) =>
       prev.map((t) => (t.id === editedTodo.id ? editedTodo : t))
     );
