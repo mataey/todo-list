@@ -153,7 +153,7 @@ export default function TodosPage({ token }) {
           'X-CSRF-TOKEN': token,
         },
         credentials: 'include',
-        body: JSON.stringify({ title: editedTodo.title, isCompleted: editedTodo.isCompleted }),
+        body: JSON.stringify({ title: editedTool.title, isCompleted: editedTodo.isCompleted }),
       });
 
       if (!response.ok) throw new Error('Failed to update todo');
@@ -182,7 +182,7 @@ export default function TodosPage({ token }) {
       )}
       {filterError && (
         <div className="error-banner">
-          <p style={{ color: 'red'}>{filterError}</p>
+          <p style={{ color: 'red' }}>{filterError}</p>
           <button onClick={() => setFilterError('')}>Clear Filter Error</button>
           <button onClick={handleResetFilters}>Reset Filters</button>
         </div>
