@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import TodoList from './TodoList/TodoList';
 import TodoForm from './TodoForm';
-import SortBy from '../shared/SortBy';
-import FilterInput from '../shared/FilterInput';
-import useDebounce from '../utils/useDebounce';
+import SortBy from '../../shared/SortBy';
+import FilterInput from '../../shared/FilterInput';
+import useDebounce from '../../utils/useDebounce';
 
 export default function TodosPage({ token }) {
   const [todoList, setTodoList] = useState([]);
