@@ -1,5 +1,5 @@
-cat << 'EOF' > src/features/Todos/TodoList/TodoList.jsx
 import { useMemo } from 'react';
+import TodoListItem from '../TodoListItem';
 
 export default function TodoList({ todoList, onCompleteTodo, onUpdateTodo, dataVersion }) {
   const filteredTodoList = useMemo(() => {
@@ -13,12 +13,13 @@ export default function TodoList({ todoList, onCompleteTodo, onUpdateTodo, dataV
   return (
     <ul>
       {filteredTodoList.todos.map((todo) => (
-        <li key={todo.id} style={{ display: 'flex', gap: '10px', margin: '5px 0' }}>
-          <span>{todo.title}</span>
-          <button onClick={() => onCompleteTodo(todo.id)}>Complete</button>
-        </li>
+        <TodoListItem
+          key={todo.id}
+          todo={todo}
+          onCompleteTodo={onCompleteTodo}
+          onUpdateTodo={onUpdateTodo}
+        />
       ))}
     </ul>
   );
 }
-EOF
