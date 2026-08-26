@@ -51,9 +51,6 @@ export default function TodosPage({ token }) {
         credentials: 'include',
       });
 
-      if (response.status === 401) {
-        throw new Error('unauthorized');
-      }
       if (!response.ok) {
         throw new Error('Failed to fetch todos');
       }
@@ -61,13 +58,11 @@ export default function TodosPage({ token }) {
       const data = await response.json();
       setTodoList(data.tasks || []);
       setFilterError('');
-    } catch (err) {
-      if (err.message === 'unauthorized') {
-        setError('Unauthorized request');
-      } else if (debouncedFilterTerm || sortBy !== 'createdAt' || sortDirection !== 'desc') {
-        setFilterError(`Error filtering/sorting todos: ${err.message}`);
+    } catch (error) {
+      if (debouncedFilterTerm || sortBy !== 'createdAt' || sortDirection !== 'desc') {
+        setFilterError(`Error filtering/sorting todos: ${error.message}`);
       } else {
-        setError(`Error fetching todos: ${err.message}`);
+        setError(`Error fetching todos: ${error.message}`);
       }
     } finally {
       setIsTodoListLoading(false);
@@ -98,7 +93,6 @@ export default function TodosPage({ token }) {
         body: JSON.stringify({ title, isCompleted: false }),
       });
 
-      if (response.status === 401) throw new Error('unauthorized');
       if (!response.ok) throw new Error('Failed to add todo');
 
       const savedTodo = await response.json();
@@ -106,11 +100,7 @@ export default function TodosPage({ token }) {
       invalidateCache();
     } catch (err) {
       setTodoList(previousTodos);
-      if (err.message === 'unauthorized') {
-        setError('Unauthorized request');
-      } else {
-        setError(`Failed to perform operation: ${err.message}`);
-      }
+      setError(`Failed to perform operation: ${err.message}`);
     } finally {
       setIsTodoListLoading(false);
     }
@@ -139,16 +129,11 @@ export default function TodosPage({ token }) {
         body: JSON.stringify({ isCompleted: updatedStatus }),
       });
 
-      if (response.status === 401) throw new Error('unauthorized');
       if (!response.ok) throw new Error('Failed to complete todo');
       invalidateCache();
     } catch (err) {
       setTodoList(previousTodos);
-      if (err.message === 'unauthorized') {
-        setError('Unauthorized request');
-      } else {
-        setError(`Failed to perform operation: ${err.message}`);
-      }
+      setError(`Failed to perform operation: ${err.message}`);
     }
   };
 
@@ -171,16 +156,11 @@ export default function TodosPage({ token }) {
         body: JSON.stringify({ title: editedTodo.title, isCompleted: editedTodo.isCompleted }),
       });
 
-      if (response.status === 401) throw new Error('unauthorized');
       if (!response.ok) throw new Error('Failed to update todo');
       invalidateCache();
     } catch (err) {
       setTodoList(previousTodos);
-      if (err.message === 'unauthorized') {
-        setError('Unauthorized request');
-      } else {
-        setError(`Failed to perform operation: ${err.message}`);
-      }
+      setError(`Failed to perform operation: ${err.message}`);
     }
   };
 
@@ -202,7 +182,7 @@ export default function TodosPage({ token }) {
       )}
       {filterError && (
         <div className="error-banner">
-          <p style={{ color: 'red' }}>{filterError}</p>
+          <p style={{ color: 'red'}>{filterError}</p>
           <button onClick={() => setFilterError('')}>Clear Filter Error</button>
           <button onClick={handleResetFilters}>Reset Filters</button>
         </div>
