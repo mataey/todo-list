@@ -4,6 +4,9 @@ import TodoForm from './TodoForm';
 import SortBy from '../shared/SortBy';
 import FilterInput from '../shared/FilterInput';
 import useDebounce from '../utils/useDebounce';
+import SortBy from '../../shared/SortBy';
+import FilterInput from '../../shared/FilterInput';
+import useDebounce from '../../utils/useDebounce';
 
 export default function TodosPage({ token }) {
   const [todoList, setTodoList] = useState([]);
@@ -15,11 +18,9 @@ export default function TodosPage({ token }) {
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState('desc');
 
-  // Filter state
   const [filterTerm, setFilterTerm] = useState('');
   const debouncedFilterTerm = useDebounce(filterTerm, 300);
 
-  // Data version for cache invalidation
   const [dataVersion, setDataVersion] = useState(0);
 
   const invalidateCache = useCallback(() => {
