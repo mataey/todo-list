@@ -7,7 +7,7 @@ import useDebounce from '../../utils/useDebounce';
 import { todoReducer, initialTodoState, TODO_ACTIONS } from '../../reducers/todoReducer';
 import { useAuth } from '../../contexts/AuthContext';
 
-const baseUrl = 'https://todo-api-fixed.onrender.com';
+const baseUrl = '/api';
 
 export default function TodosPage() {
   const { token } = useAuth();

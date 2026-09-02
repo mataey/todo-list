@@ -1,5 +1,5 @@
 import React from 'react';
-import Header from './features/Header/Header';
+import Header from './shared/Header';
 import Logon from './features/Logon/Logon';
 import TodosPage from './features/Todos/TodosPage';
 import { useAuth } from './contexts/AuthContext';

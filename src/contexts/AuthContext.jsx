@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
         credentials: 'include',
       };
 
-      const res = await fetch('https://todo-api-fixed.onrender.com/users/logon', options);
+      const res = await fetch('/api/users/logon', options);
       const data = await res.json();
 
       if (res.status === 200 && data.name && data.csrfToken) {
@@ -50,14 +50,13 @@ export function AuthProvider({ children }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          'X-CSRF-Token': token,
         },
         credentials: 'include',
       };
 
-      const res = await fetch('https://todo-api-fixed.onrender.com/users/logoff', options);
-      
-      // Clear state regardless of API response, but return correct status
+      const res = await fetch('/api/user/logoff', options);
+
       setEmail('');
       setToken('');
 

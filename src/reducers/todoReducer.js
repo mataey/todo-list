@@ -127,9 +127,7 @@ export function todoReducer(state, action) {
         ...state,
         filterTerm: action.payload.filterTerm,
         filterError: '',
-        dataVersion: state.dataVersion + 1,
       };
-
     case TODO_ACTIONS.RESET_FILTERS:
       return {
         ...state,
@@ -139,7 +137,6 @@ export function todoReducer(state, action) {
         filterError: '',
         dataVersion: state.dataVersion + 1,
       };
-
     case TODO_ACTIONS.CLEAR_ERROR:
       return { ...state, error: '' };
     case TODO_ACTIONS.CLEAR_FILTER_ERROR:
