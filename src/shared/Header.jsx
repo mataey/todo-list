@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext'; // اصلاح مسیر به پوشه درست
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Header() {
   const { isAuthenticated, logout } = useAuth();
