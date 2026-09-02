@@ -1,13 +1,13 @@
-import React, { useEffect, useReducer, useCallback } from 'react';
-import TodoList from './TodoList/TodoList';
-import TodoForm from './TodoForm/TodoForm';
-import SortBy from '../../shared/SortBy';
-import FilterInput from '../../shared/FilterInput';
-import useDebounce from '../../utils/useDebounce';
-import { todoReducer, initialTodoState, TODO_ACTIONS } from '../../reducers/todoReducer';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useEffect, useReducer, useCallback } from "react";
+import TodoList from "./TodoList/TodoList";
+import TodoForm from "./TodoForm";
+import SortBy from "../../shared/SortBy";
+import FilterInput from "../../shared/FilterInput";
+import useDebounce from "../../utils/useDebounce";
+import { todoReducer, initialTodoState, TODO_ACTIONS } from "../../reducers/todoReducer";
+import { useAuth } from "../../contexts/AuthContext";
 
-const baseUrl = 'https://todo-api-fixed.onrender.com';
+const baseUrl = "https://todo-api-fixed.onrender.com";
 
 export default function TodosPage() {
   const { token } = useAuth();
@@ -38,7 +38,7 @@ export default function TodosPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!resp.ok) {
-        throw new Error('Failed to fetch todos');
+        throw new Error("Failed to fetch todos");
       }
       const todos = await resp.json();
       dispatch({ type: TODO_ACTIONS.FETCH_SUCCESS, payload: { todos } });
@@ -66,14 +66,14 @@ export default function TodosPage() {
 
     try {
       const resp = await fetch(`${baseUrl}/todos`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ title: newTodoTitle }),
       });
-      if (!resp.ok) throw new Error('Failed to add todo');
+      if (!resp.ok) throw new Error("Failed to add todo");
       
       const serverTodo = await resp.json();
       dispatch({ type: TODO_ACTIONS.ADD_TODO_SUCCESS, payload: { tempId, serverTodo } });
@@ -91,14 +91,14 @@ export default function TodosPage() {
 
     try {
       const resp = await fetch(`${baseUrl}/todos/${id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ isCompleted: true }),
       });
-      if (!resp.ok) throw new Error('Failed to complete todo');
+      if (!resp.ok) throw new Error("Failed to complete todo");
       
       const updatedTodo = await resp.json();
       dispatch({ type: TODO_ACTIONS.COMPLETE_TODO_SUCCESS, payload: { updatedTodo } });
@@ -119,14 +119,14 @@ export default function TodosPage() {
 
     try {
       const resp = await fetch(`${baseUrl}/todos/${editedTodo.id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ title: editedTodo.title }),
       });
-      if (!resp.ok) throw new Error('Failed to update todo');
+      if (!resp.ok) throw new Error("Failed to update todo");
       
       const updatedTodo = await resp.json();
       dispatch({ type: TODO_ACTIONS.UPDATE_TODO_SUCCESS, payload: { updatedTodo } });
