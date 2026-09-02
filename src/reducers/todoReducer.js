@@ -20,7 +20,6 @@ export const TODO_ACTIONS = {
 
 export const initialTodoState = {
   todoList: [],
-  previousTodoList: [],
   error: '',
   filterError: '',
   isTodoListLoading: true,
@@ -60,7 +59,7 @@ export function todoReducer(state, action) {
     case TODO_ACTIONS.ADD_TODO_START:
       return {
         ...state,
-        previousTodoList: state.todoList,
+        rollbackList: state.todoList,
         todoList: [action.payload.newTodo, ...state.todoList],
         error: '',
         dataVersion: state.dataVersion + 1,
@@ -75,14 +74,14 @@ export function todoReducer(state, action) {
     case TODO_ACTIONS.ADD_TODO_ERROR:
       return {
         ...state,
-        todoList: state.previousTodoList,
+        todoList: state.rollbackList,
         error: action.payload.message,
       };
 
     case TODO_ACTIONS.COMPLETE_TODO_START:
       return {
         ...state,
-        previousTodoList: state.todoList,
+        rollbackList: state.todoList,
         todoList: state.todoList.map((todo) =>
           todo.id === action.payload.id ? { ...todo, isCompleted: true } : todo
         ),
@@ -99,8 +98,66 @@ export function todoReducer(state, action) {
     case TODO_ACTIONS.COMPLETE_TODO_ERROR:
       return {
         ...state,
-        todoList: state.previousTodoList,
+        todoList: state.rollbackList,
         error: action.payload.message,
       };
 
-    case TODO_ACTIONS.UPDATE
+    case TODO_ACTIONS.UPDATE_TODO_START:
+      return {
+        ...state,
+        rollbackList: state.todoList,
+        todoList: state.todoList.map((todo) =>
+          todo.id === action.payload.id ? { ...todo, title: action.payload.title } : todo
+        ),
+        error: '',
+        dataVersion: state.dataVersion + 1,
+      };
+
+    case TODO_ACTIONS.UPDATE_TODO_SUCCESS:
+      return {
+        ...state,
+        error: '',
+      };
+
+    case TODO_ACTIONS.UPDATE_TODO_ERROR:
+      return {
+        ...state,
+        todoList: state.rollbackList,
+        error: action.payload.message,
+      };
+
+    case TODO_ACTIONS.SET_SORT:
+      return {
+        ...state,
+        sortBy: action.payload.sortBy,
+        sortDirection: action.payload.sortDirection,
+        dataVersion: state.dataVersion + 1,
+      };
+
+    case TODO_ACTIONS.SET_FILTER:
+      return {
+        ...state,
+        filterTerm: action.payload.filterTerm,
+        filterError: '',
+      };
+
+    case TODO_ACTIONS.RESET_FILTERS:
+      return {
+        ...state,
+        sortBy: 'createdAt',
+        sortDirection: 'asc',
+        filterTerm: '',
+        filterError: '',
+        dataVersion: state.dataVersion + 1,
+      };
+
+    case TODO_ACTIONS.CLEAR_ERROR:
+      return { ...state, error: '' };
+
+    case TODO_ACTIONS.CLEAR_FILTER_ERROR:
+      return { ...state, filterError: '' };
+
+    default:
+      throw new Error(`Unknown action type: ${action.type}`);
+  }
+}
