@@ -21,6 +21,7 @@ export default function TodosPage() {
     sortBy,
     sortDirection,
     filterTerm,
+    dataVersion,
   } = state;
 
   const debouncedFilterTerm = useDebounce(filterTerm, 300);
@@ -50,7 +51,7 @@ export default function TodosPage() {
         },
       });
     }
-  }, [token, sortBy, sortDirection, debouncedFilterTerm]);
+  }, [token, sortBy, sortDirection, debouncedFilterTerm, dataVersion]);
 
   useEffect(() => {
     fetchTodos();
@@ -74,7 +75,6 @@ export default function TodosPage() {
       });
       if (!resp.ok) throw new Error('Failed to add todo');
       dispatch({ type: TODO_ACTIONS.ADD_TODO_SUCCESS });
-      fetchTodos();
     } catch (err) {
       dispatch({
         type: TODO_ACTIONS.ADD_TODO_ERROR,
