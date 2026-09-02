@@ -33,10 +33,10 @@ export function AuthProvider({ children }) {
       } else {
         return {
           success: false,
-          error: `Authentication failed: ${data?.message || 'Invalid credentials'}`,
+          error: data?.message || 'Authentication failed',
         };
       }
-    } catch (error) {
+    } catch {
       return {
         success: false,
         error: 'Network error during login',
@@ -65,7 +65,7 @@ export function AuthProvider({ children }) {
       } else {
         return { success: false, error: 'Logout failed on server' };
       }
-    } catch (error) {
+    } catch {
       setEmail('');
       setToken('');
       return { success: false, error: 'Network error during logout' };

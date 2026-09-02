@@ -60,7 +60,6 @@ export default function TodosPage() {
   const handleAddTodo = async (newTodoTitle) => {
     const tempId = Date.now().toString();
     const newTodo = { id: tempId, title: newTodoTitle, isCompleted: false };
-    const previousTodoList = [...todoList];
 
     dispatch({ type: TODO_ACTIONS.ADD_TODO_START, payload: { newTodo } });
 
@@ -78,13 +77,12 @@ export default function TodosPage() {
     } catch (err) {
       dispatch({
         type: TODO_ACTIONS.ADD_TODO_ERROR,
-        payload: { previousTodoList, message: err.message },
+        payload: { message: err.message },
       });
     }
   };
 
   const handleCompleteTodo = async (id) => {
-    const previousTodoList = [...todoList];
     dispatch({ type: TODO_ACTIONS.COMPLETE_TODO_START, payload: { id } });
 
     try {
@@ -101,13 +99,12 @@ export default function TodosPage() {
     } catch (err) {
       dispatch({
         type: TODO_ACTIONS.COMPLETE_TODO_ERROR,
-        payload: { previousTodoList, message: err.message },
+        payload: { message: err.message },
       });
     }
   };
 
   const handleUpdateTodo = async (editedTodo) => {
-    const previousTodoList = [...todoList];
     dispatch({
       type: TODO_ACTIONS.UPDATE_TODO_START,
       payload: { id: editedTodo.id, title: editedTodo.title },
@@ -127,7 +124,7 @@ export default function TodosPage() {
     } catch (err) {
       dispatch({
         type: TODO_ACTIONS.UPDATE_TODO_ERROR,
-        payload: { previousTodoList, message: err.message },
+        payload: { message: err.message },
       });
     }
   };
