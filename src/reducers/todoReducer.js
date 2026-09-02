@@ -64,7 +64,10 @@ export function todoReducer(state, action) {
     case TODO_ACTIONS.ADD_TODO_SUCCESS:
       return {
         ...state,
-        todoList: action.payload.todos ? action.payload.todos : state.todoList,
+        // تودوی موقت را با تودوی واقعی سرور جایگزین می‌کنیم
+        todoList: state.todoList.map((todo) =>
+          todo.id === action.payload.tempId ? action.payload.serverTodo : todo
+        ),
         error: '',
       };
     case TODO_ACTIONS.ADD_TODO_ERROR:
@@ -86,6 +89,9 @@ export function todoReducer(state, action) {
     case TODO_ACTIONS.COMPLETE_TODO_SUCCESS:
       return {
         ...state,
+        todoList: state.todoList.map((todo) =>
+          todo.id === action.payload.updatedTodo.id ? action.payload.updatedTodo : todo
+        ),
         error: '',
       };
     case TODO_ACTIONS.COMPLETE_TODO_ERROR:
@@ -107,6 +113,9 @@ export function todoReducer(state, action) {
     case TODO_ACTIONS.UPDATE_TODO_SUCCESS:
       return {
         ...state,
+        todoList: state.todoList.map((todo) =>
+          todo.id === action.payload.updatedTodo.id ? action.payload.updatedTodo : todo
+        ),
         error: '',
       };
     case TODO_ACTIONS.UPDATE_TODO_ERROR:

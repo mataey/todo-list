@@ -76,9 +76,7 @@ export default function TodosPage() {
       if (!resp.ok) throw new Error('Failed to add todo');
       
       const serverTodo = await resp.json();
-      // آپدیت نهایی با داده سرور یا ری‌فچ
-      dispatch({ type: TODO_ACTIONS.ADD_TODO_SUCCESS });
-      fetchTodos();
+      dispatch({ type: TODO_ACTIONS.ADD_TODO_SUCCESS, payload: { tempId, serverTodo } });
     } catch (err) {
       dispatch({
         type: TODO_ACTIONS.ADD_TODO_ERROR,
@@ -101,7 +99,9 @@ export default function TodosPage() {
         body: JSON.stringify({ isCompleted: true }),
       });
       if (!resp.ok) throw new Error('Failed to complete todo');
-      dispatch({ type: TODO_ACTIONS.COMPLETE_TODO_SUCCESS });
+      
+      const updatedTodo = await resp.json();
+      dispatch({ type: TODO_ACTIONS.COMPLETE_TODO_SUCCESS, payload: { updatedTodo } });
     } catch (err) {
       dispatch({
         type: TODO_ACTIONS.COMPLETE_TODO_ERROR,
@@ -127,7 +127,9 @@ export default function TodosPage() {
         body: JSON.stringify({ title: editedTodo.title }),
       });
       if (!resp.ok) throw new Error('Failed to update todo');
-      dispatch({ type: TODO_ACTIONS.UPDATE_TODO_SUCCESS });
+      
+      const updatedTodo = await resp.json();
+      dispatch({ type: TODO_ACTIONS.UPDATE_TODO_SUCCESS, payload: { updatedTodo } });
     } catch (err) {
       dispatch({
         type: TODO_ACTIONS.UPDATE_TODO_ERROR,
