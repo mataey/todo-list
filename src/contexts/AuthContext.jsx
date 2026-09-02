@@ -14,7 +14,7 @@ export function AuthProvider({ children }) {
   const [email, setEmail] = useState('');
   const [token, setToken] = useState('');
 
-  const login = async (userEmail, password, baseUrl = 'https://todo-api-fixed.onrender.com') => {
+  const login = async (userEmail, password) => {
     try {
       const options = {
         method: 'POST',
@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
         credentials: 'include',
       };
       
-      const res = await fetch(`${baseUrl}/auth/login`, options);
+      const res = await fetch('https://todo-api-fixed.onrender.com/auth/login', options);
       const data = await res.json();
       
       if (res.ok && (data.token || data.csrfToken)) {
@@ -46,10 +46,10 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = async (baseUrl = 'https://todo-api-fixed.onrender.com') => {
+  const logout = async () => {
     try {
       if (token) {
-        await fetch(`${baseUrl}/auth/logout`, {
+        await fetch('https://todo-api-fixed.onrender.com/auth/logout', {
           method: 'POST',
           headers: { Authorization: `Bearer ${token}` },
         });

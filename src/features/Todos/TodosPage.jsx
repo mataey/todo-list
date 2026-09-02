@@ -7,7 +7,9 @@ import useDebounce from '../../utils/useDebounce';
 import { todoReducer, initialTodoState, TODO_ACTIONS } from '../../reducers/todoReducer';
 import { useAuth } from '../../contexts/AuthContext';
 
-export default function TodosPage({ baseUrl }) {
+const baseUrl = 'https://todo-api-fixed.onrender.com';
+
+export default function TodosPage() {
   const { token } = useAuth();
   const [state, dispatch] = useReducer(todoReducer, initialTodoState);
   
@@ -41,7 +43,7 @@ export default function TodosPage({ baseUrl }) {
     } catch (err) {
       dispatch({ type: TODO_ACTIONS.FETCH_ERROR, payload: { message: err.message } });
     }
-  }, [token, baseUrl, sortBy, sortDirection, debouncedFilterTerm]);
+  }, [token, sortBy, sortDirection, debouncedFilterTerm]);
 
   useEffect(() => {
     fetchTodos();
@@ -96,10 +98,47 @@ export default function TodosPage({ baseUrl }) {
     }
   };
 
+  const handleUpdateTodo = async (editedTodo) => {
+    const previousTodoList = [...todoList];
+    dispatch({
+      type: TODO_ACTIONS.UPDATE_TODO_START,
+      payload: { id: editedTodo.id, title: editedTodo.title },
+    });
+
+    try {
+      const resp = await fetch(`${baseUrl}/todos/${editedTodo.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title: editedTodo.title }),
+      });
+      if (!resp.ok) throw new Error('Failed to update todo');
+      dispatch({ type: TODO_ACTIONS.UPDATE_TODO_SUCCESS });
+    } catch (err) {
+      dispatch({
+        type: TODO_ACTIONS.UPDATE_TODO_ERROR,
+        payload: { previousTodoList, message: err.message },
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">Todo List</h1>
-      {error && <div className="p-2 bg-red-100 text-red-700 rounded">{error}</div>}
+      {error && (
+        <div className="p-2 bg-red-100 text-red-700 rounded flex justify-between">
+          <span>{error}</span>
+          <button onClick={() => dispatch({ type: TODO_ACTIONS.CLEAR_ERROR })}>✕</button>
+        </div>
+      )}
+      {filterError && (
+        <div className="p-2 bg-yellow-100 text-yellow-700 rounded flex justify-between">
+          <span>{filterError}</span>
+          <button onClick={() => dispatch({ type: TODO_ACTIONS.CLEAR_FILTER_ERROR })}>✕</button>
+        </div>
+      )}
       <TodoForm onAddTodo={handleAddTodo} />
       <div className="flex gap-4 items-center">
         <FilterInput
@@ -109,15 +148,22 @@ export default function TodosPage({ baseUrl }) {
         <SortBy
           sortBy={sortBy}
           sortDirection={sortDirection}
-          onSortChange={(newSortBy, newDir) =>
-            dispatch({ type: TODO_ACTIONS.SET_SORT, payload: { sortBy: newSortBy, sortDirection: newDir || 'asc' } })
+          onSortByChange={(newSortBy) =>
+            dispatch({ type: TODO_ACTIONS.SET_SORT, payload: { sortBy: newSortBy, sortDirection } })
+          }
+          onSortDirectionChange={(newDir) =>
+            dispatch({ type: TODO_ACTIONS.SET_SORT, payload: { sortBy, sortDirection: newDir } })
           }
         />
       </div>
       {isTodoListLoading ? (
         <p>Loading...</p>
       ) : (
-        <TodoList todoList={todoList} onCompleteTodo={handleCompleteTodo} />
+        <TodoList
+          todoList={todoList}
+          onCompleteTodo={handleCompleteTodo}
+          onUpdateTodo={handleUpdateTodo}
+        />
       )}
     </div>
   );
