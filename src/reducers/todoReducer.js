@@ -35,10 +35,14 @@ export function todoReducer(state, action) {
     case TODO_ACTIONS.FETCH_SUCCESS:
       return { ...state, isTodoListLoading: false, todoList: action.payload.todos };
     case TODO_ACTIONS.FETCH_ERROR:
-      return { ...state, isTodoListLoading: false, error: action.payload.message };
+      return {
+        ...state,
+        isTodoListLoading: false,
+        [action.payload.isFilterError ? 'filterError' : 'error']: action.payload.message,
+      };
     
     case TODO_ACTIONS.ADD_TODO_START:
-      return { ...state, todoList: [action.payload.newTodo, ...state.todoList] };
+      return { ...state, todoList: [action.payload.newTodo, ...state.todoList], error: '' };
     case TODO_ACTIONS.ADD_TODO_SUCCESS:
       return { ...state, dataVersion: state.dataVersion + 1 };
     case TODO_ACTIONS.ADD_TODO_ERROR:
@@ -69,9 +73,15 @@ export function todoReducer(state, action) {
       return { ...state, todoList: action.payload.previousTodoList, error: action.payload.message };
 
     case TODO_ACTIONS.SET_SORT:
-      return { ...state, sortBy: action.payload.sortBy, sortDirection: action.payload.sortDirection };
+      return {
+        ...state,
+        sortBy: action.payload.sortBy,
+        sortDirection: action.payload.sortDirection,
+        dataVersion: state.dataVersion + 1, // تریگر کردن به‌روزرسانی برای فچ مجدد با سورت جدید
+      };
     case TODO_ACTIONS.SET_FILTER:
-      return { ...state, filterTerm: action.payload.filterTerm };
+      return { ...state, filterTerm: action.payload.filterTerm, filterError: '' };
+    
     case TODO_ACTIONS.CLEAR_ERROR:
       return { ...state, error: '' };
     case TODO_ACTIONS.CLEAR_FILTER_ERROR:
