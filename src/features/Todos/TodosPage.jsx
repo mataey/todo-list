@@ -148,29 +148,37 @@ export default function TodosPage() {
         </div>
       )}
       <TodoForm onAddTodo={handleAddTodo} />
-      <div className="flex gap-4 items-center">
+      <div className="flex gap-4 items-center justify-between">
         <FilterInput
           filterTerm={filterTerm}
           onFilterChange={(term) =>
             dispatch({ type: TODO_ACTIONS.SET_FILTER, payload: { filterTerm: term } })
           }
         />
-        <SortBy
-          sortBy={sortBy}
-          sortDirection={sortDirection}
-          onSortByChange={(newSortBy) =>
-            dispatch({
-              type: TODO_ACTIONS.SET_SORT,
-              payload: { sortBy: newSortBy, sortDirection },
-            })
-          }
-          onSortDirectionChange={(newDir) =>
-            dispatch({
-              type: TODO_ACTIONS.SET_SORT,
-              payload: { sortBy, sortDirection: newDir },
-            })
-          }
-        />
+        <div className="flex gap-2 items-center">
+          <SortBy
+            sortBy={sortBy}
+            sortDirection={sortDirection}
+            onSortByChange={(newSortBy) =>
+              dispatch({
+                type: TODO_ACTIONS.SET_SORT,
+                payload: { sortBy: newSortBy, sortDirection },
+              })
+            }
+            onSortDirectionChange={(newDir) =>
+              dispatch({
+                type: TODO_ACTIONS.SET_SORT,
+                payload: { sortBy, sortDirection: newDir },
+              })
+            }
+          />
+          <button
+            onClick={() => dispatch({ type: TODO_ACTIONS.RESET_FILTERS })}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded text-sm"
+          >
+            Reset
+          </button>
+        </div>
       </div>
       {isTodoListLoading ? (
         <p>Loading...</p>
