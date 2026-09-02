@@ -31,22 +31,42 @@ export const initialTodoState = {
 export function todoReducer(state, action) {
   switch (action.type) {
     case TODO_ACTIONS.FETCH_START:
-      return { ...state, isTodoListLoading: true, error: '', filterError: '' };
+      return {
+        ...state,
+        isTodoListLoading: true,
+        error: '',
+        filterError: '',
+      };
     case TODO_ACTIONS.FETCH_SUCCESS:
-      return { ...state, isTodoListLoading: false, todoList: action.payload.todos };
+      return {
+        ...state,
+        isTodoListLoading: false,
+        todoList: action.payload.todos,
+      };
     case TODO_ACTIONS.FETCH_ERROR:
       return {
         ...state,
         isTodoListLoading: false,
         [action.payload.isFilterError ? 'filterError' : 'error']: action.payload.message,
       };
-    
+
     case TODO_ACTIONS.ADD_TODO_START:
-      return { ...state, todoList: [action.payload.newTodo, ...state.todoList], error: '' };
+      return {
+        ...state,
+        todoList: [action.payload.newTodo, ...state.todoList],
+        error: '',
+      };
     case TODO_ACTIONS.ADD_TODO_SUCCESS:
-      return { ...state, dataVersion: state.dataVersion + 1 };
+      return {
+        ...state,
+        dataVersion: state.dataVersion + 1,
+      };
     case TODO_ACTIONS.ADD_TODO_ERROR:
-      return { ...state, todoList: action.payload.previousTodoList, error: action.payload.message };
+      return {
+        ...state,
+        todoList: action.payload.previousTodoList,
+        error: action.payload.message,
+      };
 
     case TODO_ACTIONS.COMPLETE_TODO_START:
       return {
@@ -54,11 +74,19 @@ export function todoReducer(state, action) {
         todoList: state.todoList.map((todo) =>
           todo.id === action.payload.id ? { ...todo, isCompleted: true } : todo
         ),
+        error: '',
       };
     case TODO_ACTIONS.COMPLETE_TODO_SUCCESS:
-      return { ...state, dataVersion: state.dataVersion + 1 };
+      return {
+        ...state,
+        dataVersion: state.dataVersion + 1,
+      };
     case TODO_ACTIONS.COMPLETE_TODO_ERROR:
-      return { ...state, todoList: action.payload.previousTodoList, error: action.payload.message };
+      return {
+        ...state,
+        todoList: action.payload.previousTodoList,
+        error: action.payload.message,
+      };
 
     case TODO_ACTIONS.UPDATE_TODO_START:
       return {
@@ -66,22 +94,34 @@ export function todoReducer(state, action) {
         todoList: state.todoList.map((todo) =>
           todo.id === action.payload.id ? { ...todo, title: action.payload.title } : todo
         ),
+        error: '',
       };
     case TODO_ACTIONS.UPDATE_TODO_SUCCESS:
-      return { ...state, dataVersion: state.dataVersion + 1 };
+      return {
+        ...state,
+        dataVersion: state.dataVersion + 1,
+      };
     case TODO_ACTIONS.UPDATE_TODO_ERROR:
-      return { ...state, todoList: action.payload.previousTodoList, error: action.payload.message };
+      return {
+        ...state,
+        todoList: action.payload.previousTodoList,
+        error: action.payload.message,
+      };
 
     case TODO_ACTIONS.SET_SORT:
       return {
         ...state,
         sortBy: action.payload.sortBy,
         sortDirection: action.payload.sortDirection,
-        dataVersion: state.dataVersion + 1, // تریگر کردن به‌روزرسانی برای فچ مجدد با سورت جدید
+        dataVersion: state.dataVersion + 1,
       };
     case TODO_ACTIONS.SET_FILTER:
-      return { ...state, filterTerm: action.payload.filterTerm, filterError: '' };
-    
+      return {
+        ...state,
+        filterTerm: action.payload.filterTerm,
+        filterError: '',
+      };
+
     case TODO_ACTIONS.CLEAR_ERROR:
       return { ...state, error: '' };
     case TODO_ACTIONS.CLEAR_FILTER_ERROR:

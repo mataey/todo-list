@@ -12,7 +12,7 @@ const baseUrl = 'https://todo-api-fixed.onrender.com';
 export default function TodosPage() {
   const { token } = useAuth();
   const [state, dispatch] = useReducer(todoReducer, initialTodoState);
-  
+
   const {
     todoList,
     error,
@@ -37,11 +37,19 @@ export default function TodosPage() {
       const resp = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!resp.ok) throw new Error('Failed to fetch todos');
+      if (!resp.ok) {
+        throw new Error('Failed to fetch todos');
+      }
       const todos = await resp.json();
       dispatch({ type: TODO_ACTIONS.FETCH_SUCCESS, payload: { todos } });
     } catch (err) {
-      dispatch({ type: TODO_ACTIONS.FETCH_ERROR, payload: { message: err.message } });
+      dispatch({
+        type: TODO_ACTIONS.FETCH_ERROR,
+        payload: {
+          message: err.message,
+          isFilterError: !!debouncedFilterTerm,
+        },
+      });
     }
   }, [token, sortBy, sortDirection, debouncedFilterTerm]);
 
@@ -143,16 +151,24 @@ export default function TodosPage() {
       <div className="flex gap-4 items-center">
         <FilterInput
           filterTerm={filterTerm}
-          onFilterChange={(term) => dispatch({ type: TODO_ACTIONS.SET_FILTER, payload: { filterTerm: term } })}
+          onFilterChange={(term) =>
+            dispatch({ type: TODO_ACTIONS.SET_FILTER, payload: { filterTerm: term } })
+          }
         />
         <SortBy
           sortBy={sortBy}
           sortDirection={sortDirection}
           onSortByChange={(newSortBy) =>
-            dispatch({ type: TODO_ACTIONS.SET_SORT, payload: { sortBy: newSortBy, sortDirection } })
+            dispatch({
+              type: TODO_ACTIONS.SET_SORT,
+              payload: { sortBy: newSortBy, sortDirection },
+            })
           }
           onSortDirectionChange={(newDir) =>
-            dispatch({ type: TODO_ACTIONS.SET_SORT, payload: { sortBy, sortDirection: newDir } })
+            dispatch({
+              type: TODO_ACTIONS.SET_SORT,
+              payload: { sortBy, sortDirection: newDir },
+            })
           }
         />
       </div>

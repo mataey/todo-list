@@ -22,15 +22,13 @@ export function AuthProvider({ children }) {
         body: JSON.stringify({ email: userEmail, password }),
         credentials: 'include',
       };
-      
-      const res = await fetch('https://todo-api-fixed.onrender.com/auth/login', options);
+
+      const res = await fetch('https://todo-api-fixed.onrender.com/users/logon', options);
       const data = await res.json();
-      
-      if (res.ok && (data.token || data.csrfToken)) {
-        const userToken = data.token || data.csrfToken;
-        const userName = data.user?.email || data.name || userEmail;
-        setEmail(userName);
-        setToken(userToken);
+
+      if (res.status === 200 && data.name && data.csrfToken) {
+        setEmail(data.name);
+        setToken(data.csrfToken);
         return { success: true };
       } else {
         return {
@@ -48,18 +46,30 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      if (token) {
-        await fetch('https://todo-api-fixed.onrender.com/auth/logout', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      }
-    } catch (err) {
-      console.error('Logout API error:', err);
-    } finally {
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: 'include',
+      };
+
+      const res = await fetch('https://todo-api-fixed.onrender.com/users/logoff', options);
+      
+      // Clear state regardless of API response, but return correct status
       setEmail('');
       setToken('');
-      return { success: true };
+
+      if (res.ok) {
+        return { success: true };
+      } else {
+        return { success: false, error: 'Logout failed on server' };
+      }
+    } catch (error) {
+      setEmail('');
+      setToken('');
+      return { success: false, error: 'Network error during logout' };
     }
   };
 
