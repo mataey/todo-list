@@ -38,7 +38,6 @@ export function todoReducer(state, action) {
         error: '',
         filterError: '',
       };
-
     case TODO_ACTIONS.FETCH_SUCCESS:
       return {
         ...state,
@@ -47,7 +46,6 @@ export function todoReducer(state, action) {
         error: '',
         filterError: '',
       };
-
     case TODO_ACTIONS.FETCH_ERROR:
       return {
         ...state,
@@ -59,70 +57,62 @@ export function todoReducer(state, action) {
     case TODO_ACTIONS.ADD_TODO_START:
       return {
         ...state,
-        rollbackList: state.todoList,
         todoList: [action.payload.newTodo, ...state.todoList],
         error: '',
         dataVersion: state.dataVersion + 1,
       };
-
     case TODO_ACTIONS.ADD_TODO_SUCCESS:
       return {
         ...state,
+        todoList: action.payload.todos ? action.payload.todos : state.todoList,
         error: '',
       };
-
     case TODO_ACTIONS.ADD_TODO_ERROR:
       return {
         ...state,
-        todoList: state.rollbackList,
+        todoList: action.payload.previousTodoList,
         error: action.payload.message,
       };
 
     case TODO_ACTIONS.COMPLETE_TODO_START:
       return {
         ...state,
-        rollbackList: state.todoList,
         todoList: state.todoList.map((todo) =>
           todo.id === action.payload.id ? { ...todo, isCompleted: true } : todo
         ),
         error: '',
         dataVersion: state.dataVersion + 1,
       };
-
     case TODO_ACTIONS.COMPLETE_TODO_SUCCESS:
       return {
         ...state,
         error: '',
       };
-
     case TODO_ACTIONS.COMPLETE_TODO_ERROR:
       return {
         ...state,
-        todoList: state.rollbackList,
+        todoList: action.payload.previousTodoList,
         error: action.payload.message,
       };
 
     case TODO_ACTIONS.UPDATE_TODO_START:
       return {
         ...state,
-        rollbackList: state.todoList,
         todoList: state.todoList.map((todo) =>
           todo.id === action.payload.id ? { ...todo, title: action.payload.title } : todo
         ),
         error: '',
         dataVersion: state.dataVersion + 1,
       };
-
     case TODO_ACTIONS.UPDATE_TODO_SUCCESS:
       return {
         ...state,
         error: '',
       };
-
     case TODO_ACTIONS.UPDATE_TODO_ERROR:
       return {
         ...state,
-        todoList: state.rollbackList,
+        todoList: action.payload.previousTodoList,
         error: action.payload.message,
       };
 
@@ -133,12 +123,12 @@ export function todoReducer(state, action) {
         sortDirection: action.payload.sortDirection,
         dataVersion: state.dataVersion + 1,
       };
-
     case TODO_ACTIONS.SET_FILTER:
       return {
         ...state,
         filterTerm: action.payload.filterTerm,
         filterError: '',
+        dataVersion: state.dataVersion + 1,
       };
 
     case TODO_ACTIONS.RESET_FILTERS:
@@ -153,7 +143,6 @@ export function todoReducer(state, action) {
 
     case TODO_ACTIONS.CLEAR_ERROR:
       return { ...state, error: '' };
-
     case TODO_ACTIONS.CLEAR_FILTER_ERROR:
       return { ...state, filterError: '' };
 

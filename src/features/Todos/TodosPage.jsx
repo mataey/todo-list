@@ -7,7 +7,7 @@ import useDebounce from '../../utils/useDebounce';
 import { todoReducer, initialTodoState, TODO_ACTIONS } from '../../reducers/todoReducer';
 import { useAuth } from '../../contexts/AuthContext';
 
-const baseUrl = '/api';
+const baseUrl = 'https://todo-api-fixed.onrender.com';
 
 export default function TodosPage() {
   const { token } = useAuth();
@@ -60,6 +60,7 @@ export default function TodosPage() {
   const handleAddTodo = async (newTodoTitle) => {
     const tempId = Date.now().toString();
     const newTodo = { id: tempId, title: newTodoTitle, isCompleted: false };
+    const previousTodoList = [...todoList];
 
     dispatch({ type: TODO_ACTIONS.ADD_TODO_START, payload: { newTodo } });
 
@@ -73,16 +74,21 @@ export default function TodosPage() {
         body: JSON.stringify({ title: newTodoTitle }),
       });
       if (!resp.ok) throw new Error('Failed to add todo');
+      
+      const serverTodo = await resp.json();
+      // آپدیت نهایی با داده سرور یا ری‌فچ
       dispatch({ type: TODO_ACTIONS.ADD_TODO_SUCCESS });
+      fetchTodos();
     } catch (err) {
       dispatch({
         type: TODO_ACTIONS.ADD_TODO_ERROR,
-        payload: { message: err.message },
+        payload: { previousTodoList, message: err.message },
       });
     }
   };
 
   const handleCompleteTodo = async (id) => {
+    const previousTodoList = [...todoList];
     dispatch({ type: TODO_ACTIONS.COMPLETE_TODO_START, payload: { id } });
 
     try {
@@ -99,12 +105,13 @@ export default function TodosPage() {
     } catch (err) {
       dispatch({
         type: TODO_ACTIONS.COMPLETE_TODO_ERROR,
-        payload: { message: err.message },
+        payload: { previousTodoList, message: err.message },
       });
     }
   };
 
   const handleUpdateTodo = async (editedTodo) => {
+    const previousTodoList = [...todoList];
     dispatch({
       type: TODO_ACTIONS.UPDATE_TODO_START,
       payload: { id: editedTodo.id, title: editedTodo.title },
@@ -124,7 +131,7 @@ export default function TodosPage() {
     } catch (err) {
       dispatch({
         type: TODO_ACTIONS.UPDATE_TODO_ERROR,
-        payload: { message: err.message },
+        payload: { previousTodoList, message: err.message },
       });
     }
   };
