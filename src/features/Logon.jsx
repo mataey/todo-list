@@ -1,65 +1,53 @@
-import { useState } from 'react';
+import React, { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
-export default function Logon({ onSetEmail, onSetToken }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [authError, setAuthError] = useState('');
-  const [isLoggingOn, setIsLoggingOn] = useState(false);
+export default function Logon() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoggingOn(true);
-    setAuthError('');
-
-    try {
-      const response = await fetch('/api/users/logon', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password })
-      });
-      const data = await response.json();
-      
-      if (response.status === 200 && data.name && data.csrfToken) {
-        onSetEmail(data.name);
-        onSetToken(data.csrfToken);
-      } else {
-        setAuthError(`Authentication failed: ${data?.message}`);
-      }
-    } catch (error) {
-      setAuthError(`Error: ${error.name} | ${error.message}`);
-    } finally {
-      setIsLoggingOn(false);
+    setError("");
+    const result = await login(email, password);
+    if (!result.success) {
+      setError(result.error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="logon-form">
-      <h2>Log In</h2>
-      {authError && <p style={{ color: 'red' }}>{authError}</p>}
-      <div>
-        <label htmlFor="email">Email</label>
-        <input 
-          id="email"
-          type="email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          required 
-        />
-      </div>
-      <div>
-        <label htmlFor="password">Password</label>
-        <input 
-          id="password"
-          type="password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          required 
-        />
-      </div>
-      <button type="submit" disabled={isLoggingOn}>
-        {isLoggingOn ? 'Logging in...' : 'Log On'}
-      </button>
-    </form>
+    <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded shadow">
+      <h2 className="text-xl font-bold mb-4">Log In</h2>
+      {error && <div className="mb-4 p-2 bg-red-100 text-red-700 rounded text-sm">{error}</div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded shadow"
+        >
+          Sign In
+        </button>
+      </form>
+    </div>
   );
 }
