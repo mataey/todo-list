@@ -1,25 +1,20 @@
-import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import Navigation from './Navigation';
 
-export default function Header() {
-  const { isAuthenticated, email, logout } = useAuth();
-
+function Header({ user, handleLogOut }) {
   return (
-    <header className="bg-white shadow">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800">AIRHub Todo App</h1>
-        {isAuthenticated && (
-          <div className="flex items-center gap-4">
-            {email && <span className="text-gray-600 text-sm">Welcome, {email}</span>}
-            <button
-              onClick={logout}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded text-sm transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-        )}
-      </div>
+    <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
+      <h1>Todo-List App</h1>
+      
+      <Navigation />
+
+      {user && user.id && (
+        <div>
+          <span>Hi, {user.firstName} </span>
+          <button onClick={handleLogOut}>Log Out</button>
+        </div>
+      )}
     </header>
   );
 }
+
+export default Header;
