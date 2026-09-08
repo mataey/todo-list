@@ -48,6 +48,7 @@ function ProfilePage() {
       <h2>Profile</h2>
       <div style={{ marginBottom: '20px', background: '#f9f9f9', padding: '15px', borderRadius: '5px' }}>
         <h3>Account Information</h3>
+        <p><strong>Name:</strong> {email ? email.split('@')[0] : 'User'}</p>
         <p><strong>Email:</strong> {email}</p>
         <p><strong>Status:</strong> Active</p>
       </div>

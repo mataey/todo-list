@@ -50,7 +50,7 @@ function TodoList({
           key={todo.id}
           todo={todo}
           onCompleteTodo={onCompleteTodo}
-          onUpdateTodo={updateTodo}
+          onUpdateTodo={onUpdateTodo}
         />
       ))}
     </ul>
