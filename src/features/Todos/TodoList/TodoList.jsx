@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import TodoListItem from './TodoListItem.jsx';
 
 function TodoList({
   todoList,
@@ -46,12 +45,14 @@ function TodoList({
   ) : (
     <ul>
       {filteredTodoList.todos.map((todo) => (
-        <TodoListItem
-          key={todo.id}
-          todo={todo}
-          onCompleteTodo={onCompleteTodo}
-          onUpdateTodo={onUpdateTodo}
-        />
+        <li key={todo.id} style={{ margin: '10px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ textDecoration: todo.isCompleted ? 'line-through' : 'none' }}>
+            {todo.title}
+          </span>
+          {!todo.isCompleted && (
+            <button onClick={() => onCompleteTodo(todo.id)}>Complete</button>
+          )}
+        </li>
       ))}
     </ul>
   );

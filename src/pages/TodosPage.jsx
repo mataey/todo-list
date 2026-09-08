@@ -1,12 +1,12 @@
 import { useState, useReducer, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useSearchParams } from 'react-router';
-import todoReducer, { initialTodoState, TODO_ACTION } from '../../reducers/todoReducer';
-import TodoList from '../../features/Todos/TodoList/TodoList';
-import TodoForm from '../../features/Todos/TodoList/TodoForm';
-import FilterInput from '../../shared/FilterInput';
-import SortBy from '../../shared/SortBy';
-import StatusFilter from '../../shared/StatusFilter';
+import todoReducer, { initialTodoState, TODO_ACTION } from '../reducers/todoReducer';
+import TodoList from '../features/Todos/TodoList/TodoList';
+import TodoForm from '../features/Todos/TodoForm';
+import FilterInput from '../shared/FilterInput';
+import SortBy from '../shared/SortBy';
+import StatusFilter from '../shared/StatusFilter';
 
 function TodosPage() {
   const { token } = useAuth();
@@ -17,7 +17,7 @@ function TodosPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [dataVersion, setDataVersion] = useState(0);
 
-  const { todoList, isTodoListLoading, isTodoAdding, isTodoUpdating } = state;
+  const { todoList, isTodoListLoading, isTodoAdding } = state;
 
   useEffect(() => {
     async function fetchTodos() {

@@ -3,12 +3,14 @@ import { useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
 
 function LoginPage() {
-  const { login, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const { login, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const from = location.state?.from?.pathname || '/todos';
 
@@ -20,37 +22,44 @@ function LoginPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setIsLoggingIn(true);
     setError('');
+
     const result = await login(email, password);
     if (!result.success) {
       setError(result.error || 'Failed to login');
+      setIsLoggingIn(false);
     }
   }
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '40px', maxWidth: '400px', margin: '0 auto' }}>
       <h2>Login</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <div>
-          <label>Email: </label>
+          <label style={{ display: 'block', marginBottom: '5px' }}>Email:</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            style={{ width: '100%', padding: '8px' }}
           />
         </div>
-        <div style={{ marginTop: '10px' }}>
-          <label>Password: </label>
+        <div>
+          <label style={{ display: 'block', marginBottom: '5px' }}>Password:</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            style={{ width: '100%', padding: '8px' }}
           />
         </div>
-        <button type="submit" style={{ marginTop: '10px' }}>Login</button>
+        <button type="submit" disabled={isLoggingIn} style={{ padding: '10px', background: 'blue', color: 'white', border: 'none' }}>
+          {isLoggingIn ? 'Logging in...' : 'Login'}
+        </button>
       </form>
     </div>
   );

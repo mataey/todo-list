@@ -1,18 +1,10 @@
 import Navigation from './Navigation';
 
-function Header({ user, handleLogOut }) {
+function Header() {
   return (
-    <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem' }}>
-      <h1>Todo-List App</h1>
-      
+    <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderBottom: '1px solid #ccc' }}>
+      <h1>Todo App</h1>
       <Navigation />
-
-      {user && user.id && (
-        <div>
-          <span>Hi, {user.firstName} </span>
-          <button onClick={handleLogOut}>Log Out</button>
-        </div>
-      )}
     </header>
   );
 }
