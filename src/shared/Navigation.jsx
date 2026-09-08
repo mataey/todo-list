@@ -1,17 +1,25 @@
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
 
 function Navigation() {
   const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
   const navLinkStyle = ({ isActive }) => ({
     fontWeight: isActive ? 'bold' : 'normal',
     textDecoration: isActive ? 'underline' : 'none',
-    color: 'inherit',
+    color: '#333',
   });
 
+  async function handleLogout() {
+    const result = await logout();
+    if (result.success || result === undefined) {
+      navigate('/login');
+    }
+  }
+
   return (
-    <nav>
+    <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', background: '#f5f5f5' }}>
       <ul style={{ listStyle: 'none', display: 'flex', gap: '1rem', padding: 0, margin: 0, alignItems: 'center' }}>
         <li>
           <NavLink to="/about" style={navLinkStyle}>About</NavLink>
@@ -24,11 +32,6 @@ function Navigation() {
             <li>
               <NavLink to="/profile" style={navLinkStyle}>Profile</NavLink>
             </li>
-            <li>
-              <button onClick={logout} style={{ padding: '5px 10px', cursor: 'pointer' }}>
-                Logout
-              </button>
-            </li>
           </>
         ) : (
           <li>
@@ -36,6 +39,11 @@ function Navigation() {
           </li>
         )}
       </ul>
+      {isAuthenticated && (
+        <button onClick={handleLogout} style={{ padding: '5px 10px', cursor: 'pointer' }}>
+          Logout
+        </button>
+      )}
     </nav>
   );
 }
