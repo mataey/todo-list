@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 function ProfilePage() {
-  const { name, email, token } = useAuth();
+  const { email, token } = useAuth();
   const [todoStats, setTodoStats] = useState({ total: 0, completed: 0, active: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -21,13 +21,7 @@ function ProfilePage() {
           credentials: 'include',
         });
 
-        if (response.status === 401) {
-          throw new Error('Unauthorized');
-        }
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch todos');
-        }
+        if (!response.ok) throw new Error('Failed to fetch todos');
 
         const todos = await response.json();
         const total = todos.length;
@@ -54,7 +48,6 @@ function ProfilePage() {
       <h2>Profile</h2>
       <div style={{ marginBottom: '20px', background: '#f9f9f9', padding: '15px', borderRadius: '5px' }}>
         <h3>Account Information</h3>
-        {name && <p><strong>Name:</strong> {name}</p>}
         <p><strong>Email:</strong> {email}</p>
         <p><strong>Status:</strong> Active</p>
       </div>
