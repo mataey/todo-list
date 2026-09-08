@@ -6,7 +6,7 @@ function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -22,13 +22,13 @@ function LoginPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setIsLoggingIn(true);
+    setIsSubmitting(true);
     setError('');
 
     const result = await login(email, password);
     if (!result.success) {
       setError(result.error || 'Failed to login');
-      setIsLoggingIn(false);
+      setIsSubmitting(false);
     }
   }
 
@@ -57,8 +57,8 @@ function LoginPage() {
             style={{ width: '100%', padding: '8px' }}
           />
         </div>
-        <button type="submit" disabled={isLoggingIn} style={{ padding: '10px', background: 'blue', color: 'white', border: 'none' }}>
-          {isLoggingIn ? 'Logging in...' : 'Login'}
+        <button type="submit" disabled={isSubmitting} style={{ padding: '10px', background: 'blue', color: 'white', border: 'none', cursor: 'pointer' }}>
+          {isSubmitting ? 'Logging in...' : 'Login'}
         </button>
       </form>
     </div>
