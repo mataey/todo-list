@@ -26,7 +26,9 @@ function LoginPage() {
     setError('');
 
     const result = await login(email, password);
-    if (!result.success) {
+    if (result.success) {
+      navigate(from, { replace: true });
+    } else {
       setError(result.error || 'Failed to login');
       setIsSubmitting(false);
     }

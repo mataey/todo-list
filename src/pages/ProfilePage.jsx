@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 function ProfilePage() {
-  const { email, token } = useAuth();
+  const { name, email, token } = useAuth();
   const [todoStats, setTodoStats] = useState({ total: 0, completed: 0, active: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -15,13 +15,11 @@ function ProfilePage() {
         setLoading(true);
         setError('');
 
-        const options = {
+        const response = await fetch('/api/tasks', {
           method: 'GET',
           headers: { 'X-CSRF-TOKEN': token },
           credentials: 'include',
-        };
-
-        const response = await fetch('/api/tasks', options);
+        });
 
         if (response.status === 401) {
           throw new Error('Unauthorized');
@@ -56,6 +54,7 @@ function ProfilePage() {
       <h2>Profile</h2>
       <div style={{ marginBottom: '20px', background: '#f9f9f9', padding: '15px', borderRadius: '5px' }}>
         <h3>Account Information</h3>
+        {name && <p><strong>Name:</strong> {name}</p>}
         <p><strong>Email:</strong> {email}</p>
         <p><strong>Status:</strong> Active</p>
       </div>
