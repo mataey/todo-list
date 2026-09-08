@@ -4,8 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 
 function RequireAuth({ children }) {
   const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isAuthenticated) {
