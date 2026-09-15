@@ -4,22 +4,34 @@ const AuthContext = createContext();
 
 export function useAuth() {
   const context = useContext(AuthContext);
+
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+
   return context;
 }
 
 export function AuthProvider({ children }) {
-  const [email, setEmail] = useState('');
-  const [token, setToken] = useState('');
+  const [email, setEmail] = useState(
+    () => localStorage.getItem('todo_email') || ''
+  );
+
+  const [token, setToken] = useState(
+    () => localStorage.getItem('todo_token') || ''
+  );
 
   const login = async (userEmail, password) => {
     try {
       const res = await fetch('/api/users/logon', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, password }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: userEmail,
+          password,
+        }),
         credentials: 'include',
       });
 
@@ -28,12 +40,22 @@ export function AuthProvider({ children }) {
       if (res.status === 200 && data.name && data.csrfToken) {
         setEmail(data.name);
         setToken(data.csrfToken);
+
+        localStorage.setItem('todo_email', data.name);
+        localStorage.setItem('todo_token', data.csrfToken);
+
         return { success: true };
       }
 
-      return { success: false, error: data?.message || 'Authentication failed' };
+      return {
+        success: false,
+        error: data?.message || 'Authentication failed',
+      };
     } catch {
-      return { success: false, error: 'Network error during login' };
+      return {
+        success: false,
+        error: 'Network error during login',
+      };
     }
   };
 
@@ -51,12 +73,28 @@ export function AuthProvider({ children }) {
       setEmail('');
       setToken('');
 
-      if (res.ok) return { success: true };
-      return { success: false, error: 'Logout failed on server' };
+      localStorage.removeItem('todo_email');
+      localStorage.removeItem('todo_token');
+
+      if (res.ok) {
+        return { success: true };
+      }
+
+      return {
+        success: false,
+        error: 'Logout failed on server',
+      };
     } catch {
       setEmail('');
       setToken('');
-      return { success: false, error: 'Network error during logout' };
+
+      localStorage.removeItem('todo_email');
+      localStorage.removeItem('todo_token');
+
+      return {
+        success: false,
+        error: 'Network error during logout',
+      };
     }
   };
 
