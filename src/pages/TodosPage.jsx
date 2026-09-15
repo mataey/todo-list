@@ -14,13 +14,20 @@ const initialTodoState = {
 function todoReducer(state, action) {
   switch (action.type) {
     case 'FETCH_TODOS_REQUEST':
-      return { ...state, isLoading: true, error: '' };
+      return {
+        ...state,
+        isLoading: true,
+        error: '',
+      };
 
     case 'FETCH_TODOS_SUCCESS':
       return {
         ...state,
         isLoading: false,
-        todoList: action.payload,
+        todoList: Array.isArray(action.payload)
+          ? action.payload
+          : [],
+        error: '',
       };
 
     case 'FETCH_TODOS_FAILURE':
@@ -54,7 +61,11 @@ function TodosPage() {
   const [searchParams] = useSearchParams();
   const statusFilter = searchParams.get('status') || 'all';
 
-  const [state, dispatch] = useReducer(todoReducer, initialTodoState);
+  const [state, dispatch] = useReducer(
+    todoReducer,
+    initialTodoState
+  );
+
   const [dataVersion, setDataVersion] = useState(0);
 
   useEffect(() => {
@@ -64,7 +75,11 @@ function TodosPage() {
       dispatch({ type: 'FETCH_TODOS_REQUEST' });
 
       try {
-        const response = await fetch('/api/tasks', {
+        const params = new URLSearchParams({
+          limit: 100,
+        });
+
+        const response = await fetch(`/api/tasks?${params}`, {
           method: 'GET',
           headers: {
             'X-CSRF-TOKEN': token,
@@ -85,7 +100,7 @@ function TodosPage() {
 
         dispatch({
           type: 'FETCH_TODOS_SUCCESS',
-          payload: data,
+          payload: data.tasks,
         });
       } catch (err) {
         dispatch({
@@ -107,7 +122,10 @@ function TodosPage() {
           'X-CSRF-TOKEN': token,
         },
         credentials: 'include',
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({
+          title,
+          isCompleted: false,
+        }),
       });
 
       if (!response.ok) {
@@ -123,7 +141,10 @@ function TodosPage() {
 
       setDataVersion((v) => v + 1);
     } catch (err) {
-      console.error(err);
+      dispatch({
+        type: 'FETCH_TODOS_FAILURE',
+        payload: err.message,
+      });
     }
   }
 
@@ -161,7 +182,10 @@ function TodosPage() {
 
       setDataVersion((v) => v + 1);
     } catch (err) {
-      console.error(err);
+      dispatch({
+        type: 'FETCH_TODOS_FAILURE',
+        payload: err.message,
+      });
     }
   }
 
@@ -199,7 +223,10 @@ function TodosPage() {
 
       setDataVersion((v) => v + 1);
     } catch (err) {
-      console.error(err);
+      dispatch({
+        type: 'FETCH_TODOS_FAILURE',
+        payload: err.message,
+      });
     }
   }
 
