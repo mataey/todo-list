@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import TodoListItem from './TodoListItem.jsx';
+import TodoListItem from '../TodoListItem.jsx';
 
 function TodoList({
   todoList,
@@ -10,13 +10,16 @@ function TodoList({
 }) {
   const filteredTodoList = useMemo(() => {
     let filteredTodos;
+
     switch (statusFilter) {
       case 'completed':
         filteredTodos = todoList.filter((todo) => todo.isCompleted);
         break;
+
       case 'active':
         filteredTodos = todoList.filter((todo) => !todo.isCompleted);
         break;
+
       case 'all':
       default:
         filteredTodos = todoList;
@@ -33,8 +36,10 @@ function TodoList({
     switch (statusFilter) {
       case 'completed':
         return 'No completed todos yet. Complete some tasks to see them here.';
+
       case 'active':
         return 'No active todos. Add a todo above to get started.';
+
       case 'all':
       default:
         return 'Add todo above to get started.';
