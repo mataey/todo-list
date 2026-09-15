@@ -88,7 +88,7 @@ function TodosPage() {
         });
 
         if (response.status === 401) {
-          logout();
+          await logout();
           throw new Error('Unauthorized');
         }
 
@@ -157,7 +157,7 @@ function TodosPage() {
 
     try {
       const response = await fetch(`/api/tasks/${id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': token,
@@ -198,7 +198,7 @@ function TodosPage() {
 
     try {
       const response = await fetch(`/api/tasks/${id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': token,
