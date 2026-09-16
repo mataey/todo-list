@@ -6,9 +6,11 @@ function Header() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', borderBottom: '1px solid #ccc' }}>
-      <h1>My Todo App</h1>
+    <header className="site-header">
+      <h1 className="site-title">My Todo App</h1>
+
       <Navigation />
+
       {isAuthenticated && <Logoff />}
     </header>
   );

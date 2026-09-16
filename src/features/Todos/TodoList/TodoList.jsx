@@ -1,26 +1,29 @@
 import { useMemo } from 'react';
-import TodoListItem from './TodoListItem.jsx';
+import TodoListItem from '../TodoListItem.jsx';
 
 function TodoList({
   todoList,
   onCompleteTodo,
   onUpdateTodo,
+  onDeleteTodo,
   dataVersion,
   statusFilter = 'all',
 }) {
   const filteredTodoList = useMemo(() => {
     let filteredTodos;
+
     switch (statusFilter) {
       case 'completed':
         filteredTodos = todoList.filter((todo) => todo.isCompleted);
         break;
+
       case 'active':
         filteredTodos = todoList.filter((todo) => !todo.isCompleted);
         break;
+
       case 'all':
       default:
         filteredTodos = todoList;
-        break;
     }
 
     return {
@@ -29,28 +32,31 @@ function TodoList({
     };
   }, [todoList, dataVersion, statusFilter]);
 
-  const getEmptyMessage = () => {
-    switch (statusFilter) {
-      case 'completed':
-        return 'No completed todos yet. Complete some tasks to see them here.';
-      case 'active':
-        return 'No active todos. Add a todo above to get started.';
-      case 'all':
-      default:
-        return 'Add todo above to get started.';
+  function getEmptyMessage() {
+    if (statusFilter === 'completed') {
+      return 'No completed todos yet.';
     }
-  };
 
-  return filteredTodoList.todos.length === 0 ? (
-    <p>{getEmptyMessage()}</p>
-  ) : (
-    <ul>
+    if (statusFilter === 'active') {
+      return 'No active todos.';
+    }
+
+    return 'No todos yet. Add your first todo!';
+  }
+
+  if (filteredTodoList.todos.length === 0) {
+    return <p className="empty-state">{getEmptyMessage()}</p>;
+  }
+
+  return (
+    <ul className="todo-list">
       {filteredTodoList.todos.map((todo) => (
         <TodoListItem
           key={todo.id}
           todo={todo}
           onCompleteTodo={onCompleteTodo}
           onUpdateTodo={onUpdateTodo}
+          onDeleteTodo={onDeleteTodo}
         />
       ))}
     </ul>

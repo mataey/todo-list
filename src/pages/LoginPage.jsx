@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { useAuth } from '../contexts/AuthContext';
 
+const MAX_EMAIL_LENGTH = 120;
+const MAX_PASSWORD_LENGTH = 128;
+
 function LoginPage() {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,51 +23,115 @@ function LoginPage() {
     }
   }, [isAuthenticated, navigate, from]);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail) {
+      setError('Please enter your email.');
+      return;
+    }
+
+    if (trimmedEmail.length > MAX_EMAIL_LENGTH) {
+      setError(
+        `Email must be ${MAX_EMAIL_LENGTH} characters or fewer.`
+      );
+      return;
+    }
+
+    if (!password) {
+      setError('Please enter your password.');
+      return;
+    }
+
+    if (password.length > MAX_PASSWORD_LENGTH) {
+      setError(
+        `Password must be ${MAX_PASSWORD_LENGTH} characters or fewer.`
+      );
+      return;
+    }
+
     setError('');
     setIsLoading(true);
 
-    const result = await login(email, password);
-    
-    if (result && result.success) {
-      navigate(from, { replace: true });
-    } else {
-      setError(result?.error || 'Failed to login. Please check your credentials.');
+    try {
+      const result = await login(trimmedEmail, password);
+
+      if (result && result.success) {
+        navigate(from, { replace: true });
+      } else {
+        setError(
+          result?.error ||
+            'Unable to log in. Please check your credentials.'
+        );
+        setIsLoading(false);
+      }
+    } catch {
+      setError('Unable to log in. Please try again.');
       setIsLoading(false);
     }
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '400px', margin: '0 auto' }}>
-      <h2>Login</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '10px' }}>
-          <label>Email: </label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
-        </div>
-        <div style={{ marginBottom: '15px' }}>
-          <label>Password: </label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
-          />
-        </div>
-        <button type="submit" disabled={isLoading} style={{ padding: '10px 15px', width: '100%' }}>
-          {isLoading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
-    </div>
+    <main className="login-page">
+      <section className="login-card" aria-labelledby="login-title">
+        <h2 id="login-title" className="login-title">
+          Login
+        </h2>
+
+        {error && (
+          <div className="status-message status-error" role="alert">
+            {error}
+          </div>
+        )}
+
+        <form className="login-form" onSubmit={handleSubmit}>
+          <div className="login-field">
+            <label htmlFor="login-email">Email</label>
+            <input
+              id="login-email"
+              className="login-input"
+              type="email"
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setError('');
+              }}
+              maxLength={MAX_EMAIL_LENGTH}
+              autoComplete="email"
+              required
+              aria-describedby={error ? 'login-error' : undefined}
+            />
+          </div>
+
+          <div className="login-field">
+            <label htmlFor="login-password">Password</label>
+            <input
+              id="login-password"
+              className="login-input"
+              type="password"
+              value={password}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                setError('');
+              }}
+              maxLength={MAX_PASSWORD_LENGTH}
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          <button
+            className="login-button"
+            type="submit"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
+      </section>
+    </main>
   );
 }
 
