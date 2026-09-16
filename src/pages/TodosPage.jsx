@@ -41,6 +41,7 @@ function todoReducer(state, action) {
       return {
         ...state,
         todoList: [action.payload, ...state.todoList],
+        error: '',
       };
 
     case 'UPDATE_TODO':
@@ -49,6 +50,16 @@ function todoReducer(state, action) {
         todoList: state.todoList.map((todo) =>
           todo.id === action.payload.id ? action.payload : todo
         ),
+        error: '',
+      };
+
+    case 'ROLLBACK_TODO':
+      return {
+        ...state,
+        todoList: state.todoList.map((todo) =>
+          todo.id === action.payload.id ? action.payload : todo
+        ),
+        error: action.error,
       };
 
     default:
@@ -114,6 +125,17 @@ function TodosPage() {
   }, [token, dataVersion, logout]);
 
   async function addTodo(title) {
+    const temporaryTodo = {
+      id: `temp-${Date.now()}`,
+      title,
+      isCompleted: false,
+    };
+
+    dispatch({
+      type: 'ADD_TODO',
+      payload: temporaryTodo,
+    });
+
     try {
       const response = await fetch('/api/tasks', {
         method: 'POST',
@@ -135,7 +157,7 @@ function TodosPage() {
       const newTodo = await response.json();
 
       dispatch({
-        type: 'ADD_TODO',
+        type: 'UPDATE_TODO',
         payload: newTodo,
       });
 
@@ -145,15 +167,27 @@ function TodosPage() {
         type: 'FETCH_TODOS_FAILURE',
         payload: err.message,
       });
+
+      setDataVersion((v) => v + 1);
     }
   }
 
   async function completeTodo(id) {
-    const todoToUpdate = state.todoList.find(
+    const originalTodo = state.todoList.find(
       (todo) => todo.id === id
     );
 
-    if (!todoToUpdate) return;
+    if (!originalTodo) return;
+
+    const editedTodo = {
+      ...originalTodo,
+      isCompleted: !originalTodo.isCompleted,
+    };
+
+    dispatch({
+      type: 'UPDATE_TODO',
+      payload: editedTodo,
+    });
 
     try {
       const response = await fetch(`/api/tasks/${id}`, {
@@ -164,8 +198,7 @@ function TodosPage() {
         },
         credentials: 'include',
         body: JSON.stringify({
-          ...todoToUpdate,
-          isCompleted: !todoToUpdate.isCompleted,
+          isCompleted: editedTodo.isCompleted,
         }),
       });
 
@@ -173,28 +206,37 @@ function TodosPage() {
         throw new Error('Failed to update todo');
       }
 
-      const updated = await response.json();
+      const updatedTodo = await response.json();
 
       dispatch({
         type: 'UPDATE_TODO',
-        payload: updated,
+        payload: updatedTodo,
       });
-
-      setDataVersion((v) => v + 1);
     } catch (err) {
       dispatch({
-        type: 'FETCH_TODOS_FAILURE',
-        payload: err.message,
+        type: 'ROLLBACK_TODO',
+        payload: originalTodo,
+        error: err.message,
       });
     }
   }
 
   async function updateTodo(id, newTitle) {
-    const todoToUpdate = state.todoList.find(
+    const originalTodo = state.todoList.find(
       (todo) => todo.id === id
     );
 
-    if (!todoToUpdate) return;
+    if (!originalTodo) return;
+
+    const editedTodo = {
+      ...originalTodo,
+      title: newTitle,
+    };
+
+    dispatch({
+      type: 'UPDATE_TODO',
+      payload: editedTodo,
+    });
 
     try {
       const response = await fetch(`/api/tasks/${id}`, {
@@ -205,8 +247,8 @@ function TodosPage() {
         },
         credentials: 'include',
         body: JSON.stringify({
-          ...todoToUpdate,
-          title: newTitle,
+          title: editedTodo.title,
+          isCompleted: editedTodo.isCompleted,
         }),
       });
 
@@ -214,18 +256,17 @@ function TodosPage() {
         throw new Error('Failed to update todo');
       }
 
-      const updated = await response.json();
+      const updatedTodo = await response.json();
 
       dispatch({
         type: 'UPDATE_TODO',
-        payload: updated,
+        payload: updatedTodo,
       });
-
-      setDataVersion((v) => v + 1);
     } catch (err) {
       dispatch({
-        type: 'FETCH_TODOS_FAILURE',
-        payload: err.message,
+        type: 'ROLLBACK_TODO',
+        payload: originalTodo,
+        error: err.message,
       });
     }
   }
